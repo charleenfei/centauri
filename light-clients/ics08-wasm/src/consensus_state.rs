@@ -70,7 +70,7 @@ where
 	}
 
 	fn timestamp(&self) -> Timestamp {
-		unimplemented!()
+		Timestamp::from_nanoseconds(self.timestamp).expect("timestamp is valid")
 	}
 
 	fn encode_to_vec(&self) -> Result<Vec<u8>, tendermint_proto::Error> {
@@ -107,7 +107,7 @@ where
 		let inner = AnyConsensusState::try_from(any).map_err(|e| {
 			format!("failed to decode ConsensusState::data into ConsensusState: {e}")
 		})?;
-		Ok(Self { data: raw.data, inner: Box::new(inner) })
+		Ok(Self { data: raw.data, timestamp: raw.timestamp, inner: Box::new(inner) })
 	}
 }
 
@@ -115,7 +115,7 @@ impl<AnyConsensusState: IbcConsensusState> From<ConsensusState<AnyConsensusState
 	for RawConsensusState
 {
 	fn from(value: ConsensusState<AnyConsensusState>) -> Self {
-		Self { data: value.data }
+		Self { data: value.data, timestamp: value.timestamp }
 	}
 }
 
